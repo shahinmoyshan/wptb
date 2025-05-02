@@ -1,0 +1,291 @@
+<?php
+/**
+ * Perform database queries using the WordPress wpdb object.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/lib
+ */
+
+/**
+ * Class {{THEME_NAME}}_Query
+ *
+ * This class provides methods for working with the database using the WordPress wpdb object.
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/lib
+ * @author     {{AUTHOR_NAME}} <{{AUTHOR_URI}}>
+ */
+class {{THEME_NAME}}_Query {
+
+	/**
+	 * Return the full table name for a given table name, prefixed with the WP prefix.
+	 *
+	 * @param string $name The table name without the prefix.
+	 * @return string The full table name.
+	 */
+	public static function table( $name ) {
+		return self::wpdb()->prefix . $name;
+	}
+
+	/**
+	 * Retrieve the total count of items in a table.
+	 *
+	 * @param string $table  The table name without the prefix.
+	 * @param array  $args   {
+	 *     An array of arguments.
+	 *
+	 *     @type string $extra_cond SQL extra condition.
+	 *     @type string $where      SQL where condition.
+	 * }
+	 * @return int The total count of items in the table.
+	 */
+	public static function total( $table, $args = array() ) {
+		$total = self::wpdb()->get_var(
+			sprintf(
+				'SELECT COUNT(1) FROM %s %s %s',
+				self::table( $table ),
+				isset( $args['extra_cond'] ) ? $args['extra_cond'] : '',
+				isset( $args['where'] ) ? 'WHERE ' . $args['where'] : ''
+			)
+		);
+
+		return absint( $total );
+	}
+
+	/**
+	 * Retrieve the global $wpdb object for database interactions.
+	 *
+	 * @return wpdb The WordPress database access abstraction object.
+	 */
+	public static function wpdb() {
+		global $wpdb;
+
+		return $wpdb;
+	}
+
+	/**
+	 * Executes a set of SQL queries for creating/modifying database tables.
+	 *
+	 * This function is a wrapper around WordPress' `dbDelta` function, which is
+	 * used to create and modify database tables. The function takes a SQL query
+	 * string as an argument, and executes it on the database.
+	 *
+	 * @param string $queries The SQL query string to execute.
+	 */
+	public static function exec( $queries ) {
+		if ( ! function_exists( 'dbDelta' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
+		}
+
+		dbDelta( $queries );
+	}
+
+	/**
+	 * Executes a SQL query on the database.
+	 *
+	 * This function is a wrapper around the WordPress `wpdb::query` method, which
+	 * executes a SQL query on the database. The function takes a SQL query string
+	 * as an argument.
+	 *
+	 * @param string $query The sql query string to execute.
+	 *
+	 * @return int The number of rows affected by the query.
+	 */
+	public static function query( $query ) {
+		return self::wpdb()->query( $query );
+	}
+
+	/**
+	 * Executes a SQL query to retrieve records from a table.
+	 *
+	 * This function executes a SQL query on the database and retrieves the results.
+	 * The query is constructed by concatenating the following components:
+	 *
+	 * - `SELECT` clause: `*` by default, or the value of `$args['select']` if set.
+	 * - `FROM` clause: The table name, prefixed with the WordPress database table
+	 *   prefix if necessary.
+	 * - `EXTRA_COND` clause: The value of `$args['extra_cond']` if set.
+	 * - `WHERE` clause: The value of `$args['where']` if set.
+	 * - `ORDER_BY` clause: The value of `$args['order_by']` if set.
+	 * - `ORDER` clause: The value of `$args['order']` if set.
+	 * - `LIMIT` clause: The value of `$args['limit']` if set, optionally with an
+	 *   offset if `$args['offset']` is set.
+	 *
+	 * The results are returned as an array of associative arrays, where each key is
+	 * a column name and each value is the corresponding value from the database.
+	 *
+	 * @param string $table The table name to query.
+	 * @param array  $args  {
+	 *     Query arguments.
+	 *
+	 *     @type string $select        The `SELECT` clause.
+	 *     @type string $extra_cond    The `EXTRA_COND` clause.
+	 *     @type string $where         The `WHERE` clause.
+	 *     @type string $order_by      The `ORDER_BY` clause.
+	 *     @type string $order         The `ORDER` clause.
+	 *     @type int    $offset        The offset to start returning records from.
+	 *     @type int    $limit         The maximum number of records to return.
+	 * }
+	 *
+	 * @return array The query results.
+	 */
+	public static function results( $table, $args = array() ) {
+		return self::wpdb()->get_results(
+			sprintf(
+				'SELECT %s FROM %s %s %s %s %s %s %s',
+				$args['select'] ?? '*',
+				self::table( $table ),
+				$args['extra_cond'] ?? '',
+				isset( $args['where'] ) ? 'WHERE ' . $args['where'] : '',
+				isset( $args['order_by'] ) ? 'ORDER BY ' . $args['order_by'] : '',
+				$args['order'] ?? '',
+				isset( $args['offset'] ) ? 'LIMIT ' . $args['offset'] : '',
+				isset( $args['limit'] ) ? ( isset( $args['offset'] ) ? ', ' : 'LIMIT ' ) . $args['limit'] : ''
+			),
+			ARRAY_A
+		);
+	}
+
+	/**
+	 * Insert a new row into a table.
+	 *
+	 * @param string $table The table name to insert into.
+	 * @param array  $data  The data to insert. Keys are column names and values are the values to insert.
+	 *
+	 * @return int The ID of the newly inserted row.
+	 */
+	public static function create( $table, $data ) {
+		self::wpdb()->insert( self::table( $table ), $data );
+
+		return self::wpdb()->insert_id;
+	}
+
+	/**
+	 * Insert multiple rows into a table.
+	 *
+	 * @param string $table The table name to insert into.
+	 * @param array  $rows  The rows to insert. Each item in the array should be an associative array of column names to values.
+	 *
+	 * @return int|null The number of rows affected.  Null if there was an error.
+	 */
+	public static function bulk_create( $table, $rows ) {
+		$table = self::table( $table );
+
+		$rows = array_values( $rows ); // Remove keys.
+
+		// Extract column list from first row of data.
+		$columns = array_keys( $rows[0] );
+		asort( $columns );
+		$column_list = implode( ', ', $columns );
+
+		// Start building SQL, initialise data and placeholder arrays.
+		$sql          = "INSERT INTO $table ($column_list) VALUES\n";
+		$placeholders = array();
+		$data         = array();
+
+		// Build placeholders for each row, and add values to data array.
+		foreach ( $rows as $row ) {
+			ksort( $row );
+			$row_placeholders = array();
+
+			foreach ( $row as $value ) {
+				$data[]             = $value;
+				$row_placeholders[] = is_numeric( $value ) ? '%d' : '%s';
+			}
+
+			$placeholders[] = '(' . implode( ', ', $row_placeholders ) . ')';
+		}
+
+		// Stitch all rows together.
+		$sql .= implode( ",\n", $placeholders );
+
+		// Run the query.  Returns number of affected rows.
+		return self::wpdb()->query( self::wpdb()->prepare( $sql, $data ) );
+	}
+
+	/**
+	 * Updates a row in a table.
+	 *
+	 * @param string $table     The table name to update.
+	 * @param array  $data      The data to update.  Keys are column names, values are the new values.
+	 * @param array  $condition The condition to update.  Keys are column names, values are the values to match.
+	 *
+	 * @return bool True if the update was successful.  False if there was an error.
+	 */
+	public static function update( $table, $data, $condition ): bool {
+		return self::wpdb()->update( self::table( $table ), $data, $condition );
+	}
+
+	/**
+	 * Retrieve a single row from a table.
+	 *
+	 * @param string $table The table name to query.
+	 * @param array  $args  {
+	 *     Query arguments.
+	 *
+	 *     @type string $select        The `SELECT` clause.
+	 *     @type string $extra_cond    The `EXTRA_COND` clause.
+	 *     @type string $where         The `WHERE` clause.
+	 * }
+	 *
+	 * @return array|null The query results, or null if there was an error.
+	 */
+	public static function result( $table, $args = array() ) {
+		return self::wpdb()->get_row(
+			sprintf(
+				'SELECT %s FROM %s %s %s',
+				$args['select'] ?? '*',
+				self::table( $table ),
+				$args['extra_cond'] ?? '',
+				isset( $args['where'] ) ? 'WHERE ' . $args['where'] : '',
+			),
+			ARRAY_A
+		);
+	}
+
+	/**
+	 * Retrieve a single column value from a table.
+	 *
+	 * Executes a SQL query to select a single column value from a specified table,
+	 * optionally filtered by additional conditions.
+	 *
+	 * @param string $table The table name to query.
+	 * @param array  $args  {
+	 *     Query arguments.
+	 *
+	 *     @type string $select     The column to select.
+	 *     @type string $extra_cond Optional. Additional SQL conditions.
+	 *     @type string $where      Optional. WHERE clause condition.
+	 * }
+	 * @return string|null The value of the selected column, or null if no result.
+	 */
+	public static function column( $table, $args = array() ): ?string {
+		return self::wpdb()->get_var(
+			sprintf(
+				'SELECT %s FROM %s %s %s',
+				$args['select'],
+				self::table( $table ),
+				$args['extra_cond'] ?? '',
+				isset( $args['where'] ) ? 'WHERE ' . $args['where'] : '',
+			)
+		);
+	}
+
+	/**
+	 * Delete a row from a table.
+	 *
+	 * Executes a SQL query to delete a single row from a specified table,
+	 * optionally filtered by additional conditions.
+	 *
+	 * @param string $table     The table name to delete from.
+	 * @param array  $where The where to delete.  Keys are column names, values are the values to match.
+	 *
+	 * @return bool True if the deletion was successful.  False if there was an error.
+	 */
+	public static function delete( string $table, $where ): bool {
+		return self::wpdb()->delete( self::table( $table ), $where );
+	}
+}

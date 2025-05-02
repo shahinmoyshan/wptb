@@ -1,0 +1,352 @@
+<?php
+/**
+ * The file that helps create a form input fields.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/lib
+ */
+
+/**
+ * Class {{THEME_NAME}}_Form
+ *
+ * This class provides methods to render form elements using various input types.
+ * It also provides a method to render a WordPress editor form element.
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/lib
+ * @author     {{AUTHOR_NAME}} <{{AUTHOR_URI}}>
+ */
+class {{THEME_NAME}}_Form {
+
+	/**
+	 * Render a form element
+	 *
+	 * Checks if a method exists for the given type, and if it does, calls that method.
+	 * If not, it calls the input method with the given type and setup.
+	 *
+	 * @param string $type The type of the form element to render.
+	 * @param array  $setup The setup for the form element.
+	 *
+	 * @return string The rendered form element.
+	 */
+	public function render( $type, $setup ) {
+		if ( method_exists( $this, $type ) ) {
+			return call_user_func( array( $this, $type ), $setup );
+		}
+
+		return $this->input( $type, $setup );
+	}
+
+	/**
+	 * Renders a WordPress editor form element.
+	 *
+	 * This method generates a WordPress editor (WYSIWYG) form element
+	 * with the specified setup options. It utilizes the `wp_editor`
+	 * function to render the editor with custom configurations like
+	 * class, rows, and additional setup parameters.
+	 *
+	 * @param array $setup An associative array containing the setup
+	 *                     parameters for the editor, including 'name',
+	 *                     'label', and optional 'editor_setup'.
+	 *
+	 * @return string The HTML output for the editor form element.
+	 */
+	public function editor( $setup ) {
+		$editor_setup = array_merge(
+			array(
+				'wpautop'       => true,
+				'editor_class'  => 'data-content',
+				'textarea_rows' => 6,
+				'quicktags'     => false,
+				'media_buttons' => false,
+				'textarea_name' => $setup['name'],
+			),
+			$setup['editor_setup'] ?? array()
+		);
+
+		ob_start();
+
+		echo '<div class="form-group"><label for="' . esc_attr( $setup['name'] ) . '">' . esc_html( $setup['label'] ) . '</label> ';
+		wp_editor( $this->esc_html( $this->get_value( $setup ) ), $setup['name'], $editor_setup );
+		echo '</div>';
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a checkbox form element.
+	 *
+	 * This method generates a checkbox form element with a custom
+	 * label and stores the value in the session. The checkbox state
+	 * is determined by the value of the 'name' parameter in the setup
+	 * array. If the value is 'on', the checkbox is checked; otherwise,
+	 * it is unchecked.
+	 *
+	 * @param array $setup An associative array containing the setup
+	 *                     parameters for the checkbox, including 'name'
+	 *                     and 'label'.
+	 *
+	 * @return string The HTML output for the checkbox form element.
+	 */
+	public function checkbox( $setup ) {
+		ob_start();
+
+		echo '<div class="form-group cps_form-flex">
+                <input type="checkbox" id="' . esc_attr( $setup['name'] ) . '" name="' . esc_attr( $setup['name'] ) . '" ' . ( $this->get_value( $setup ) == 'on' ? 'checked' : '' ) . '>
+                <label for="' . esc_attr( $setup['name'] ) . '">' . esc_attr( $setup['label'] ) . '</label>
+            </div>';
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a separator with a title and optional description.
+	 *
+	 * This method outputs a separator with a title and an optional
+	 * description. It wraps the title in an `<h2>` element and includes
+	 * a horizontal rule below it. If a description is provided in the
+	 * setup array, it is displayed in a paragraph below the title.
+	 *
+	 * @param array $setup An associative array containing the setup
+	 *                     parameters for the separator, including 'title'
+	 *                     and optionally 'description'.
+	 *
+	 * @return string The HTML output for the separator.
+	 */
+	public function separator( $setup ) {
+		ob_start();
+
+		echo '<br /><h2 style="font-size: 20px; font-weight: normal;">' . esc_html( $setup['title'] ) . '</h2>
+            ' . ( isset( $setup['description'] ) ? '<p>' . $setup['description'] . '</p>' : '' ) . '
+            <hr /><br />';
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a select form element with AJAX capabilities.
+	 *
+	 * This method outputs a select element that makes an AJAX call to
+	 * the specified URL with the specified action and parameter. The
+	 * response is expected to contain a JSON object with a 'data' key
+	 * containing an array of options to be appended to the select
+	 * element. The 'push' parameter can be used to specify a value to
+	 * be pushed onto the select element's value when an option is
+	 * selected.
+	 *
+	 * @param array $setup An associative array containing the setup
+	 *                     parameters for the select element, including
+	 *                     'name', 'label', 'url', 'action', 'param', and
+	 *                     optionally 'push'.
+	 *
+	 * @return string The HTML output for the select form element.
+	 */
+	public function select_ajax( $setup ) {
+		ob_start();
+
+		echo '<div class="form-group">
+            <label for="' . esc_attr( $setup['name'] ) . '">' . esc_html( $setup['label'] ) . '</label>
+            <select id="' . esc_attr( $setup['name'] ) . '" class="form-control ajax-select2" data-action="' . esc_html( $setup['action'] ) . '" name="' . esc_attr( $setup['name'] ) . '" data-param="' . esc_attr( $setup['param'] ) . '" data-push="' . esc_attr( $setup['push'] ?? '' ) . '" data-url="' . esc_attr( $setup['url'] ) . '">';
+
+		if ( isset( $setup['edit_data'] ) ) {
+			echo '<option value="' . esc_attr( $setup['edit_data'][ $setup['name'] ] ) . '">' . esc_attr( $setup['edit_data'][ $setup['name'] . '_label' ] ?? $setup['edit_data'][ $setup['name'] ] ) . '</option>';
+		} elseif ( isset( $_POST[ $setup['name'] ] ) ) {
+			echo '<option value="' . esc_attr( $_POST[ $setup['name'] ] ) . '">' . esc_html( $_POST[ $setup['name'] ] ) . '</option>';
+		} else {
+			echo '<option disabled>--' . esc_html( $setup['label'] ) . '--</option>';
+		}
+
+		echo '</select></div>';
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a select form element with dropdown capabilities.
+	 *
+	 * This method outputs a select element that populates its options
+	 * from an array of options provided in the 'options' key of the
+	 * setup array. The selected value is determined by the value of
+	 * the select element's name in the current request parameters.
+	 *
+	 * @param array $setup An associative array containing the setup
+	 *                     parameters for the select element, including
+	 *                     'name', 'label', 'parent', 'param', 'url', and
+	 *                     'options'.
+	 *
+	 * @return string The HTML output for the select form element.
+	 */
+	public function select_dropdown( $setup ) {
+		ob_start();
+
+		echo '<div class="form-group">
+            <label for="' . esc_attr( $setup['name'] ) . '">' . esc_html( $setup['label'] ) . '</label>
+            <select id="' . esc_attr( $setup['name'] ) . '" name="' . esc_attr( $setup['name'] ) . '" class="form-control select_dropdown" data-parent="' . esc_attr( $setup['parent'] ) . '" data-param="' . esc_attr( $setup['param'] ) . '" data-url="' . esc_attr( $setup['url'] ) . '">
+            <option disabled>--Select Option--</option>';
+
+		foreach ( $setup['options'] ?? array() as $key => $value ) {
+			echo '<option ' . ( $key === $this->get_value( $setup ) ? 'selected' : '' ) . ' value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
+		}
+
+		echo '</select></div>';
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a basic select form element.
+	 *
+	 * This method generates a select dropdown element from a provided set of
+	 * options. The options are specified in the setup array and are used to
+	 * populate the dropdown. The selected option is determined by matching
+	 * the current value from the request parameters with the option keys.
+	 *
+	 * @param array $setup An associative array containing the setup parameters
+	 *                     for the select element, including 'name', 'label',
+	 *                     and 'options'.
+	 *
+	 * @return string The HTML output for the select form element.
+	 */
+	public function select( $setup ) {
+		ob_start();
+
+		echo '<div class="form-group">
+                <label for="' . esc_attr( $setup['name'] ) . '">' . esc_html( $setup['label'] ) . '</label>
+                <select id="' . esc_attr( $setup['name'] ) . '" name="' . esc_attr( $setup['name'] ) . '" class="form-control">
+                    <option disabled>--Select ' . esc_html( $setup['label'] ) . ' --</option>';
+
+		foreach ( $setup['options'] ?? array() as $key => $value ) {
+			echo '<option ' . ( $this->get_value( $setup ) === $key ? 'selected' : '' ) . ' value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
+		}
+
+		echo '</select></div>';
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a media upload form element.
+	 *
+	 * This method generates a WordPress media uploader form element, allowing users to upload
+	 * or select media files. It displays a preview image that defaults to a placeholder if no
+	 * media is selected. The media attachment ID is stored in a hidden input field.
+	 *
+	 * @param array $setup An associative array containing the setup parameters for the media
+	 *                     element, including 'name' and 'label'.
+	 *
+	 * @return string The HTML output for the media upload form element.
+	 */
+	public function media( $setup ) {
+		wp_enqueue_media();
+
+		if ( ! empty( $this->get_value( $setup ) ) ) {
+			$image = '<img src="' . wp_get_attachment_url( $this->get_value( $setup ) ) . '" alt="' . esc_attr( $setup['name'] ) . '" output="' . esc_attr( $setup['name'] ) . '">';
+		} else {
+			$image = '<img src="https://static.thenounproject.com/png/text-file-icon-973510-512.png" alt="' . esc_attr( $setup['name'] ) . '" output="' . esc_attr( $setup['name'] ) . '">';
+		}
+
+		ob_start();
+
+		echo <<<EOT
+			<div class="form-group wp-media" data-target="{$setup['name']}" data-uploadtitle="Upload Media Files" data-uploadbutton="Upload">
+				<label for="{$setup['name']}">{$setup['label']}</label>
+				<div class="select-wp-img">
+					{$image}
+					<input type="hidden" name="{$setup['name']}" value="{$this->get_value($setup)}">
+				</div>
+			</div>
+		EOT;
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders a textarea form element.
+	 *
+	 * This method generates a textarea form element with a label and placeholder.
+	 * It populates the textarea with the value of the 'name' parameter in the
+	 * current request parameters.
+	 *
+	 * @param array $setup An associative array containing the setup parameters
+	 *                     for the textarea element, including 'name' and 'label'.
+	 *
+	 * @return string The HTML output for the textarea form element.
+	 */
+	public function textarea( $setup ) {
+		ob_start();
+
+		echo <<<EOT
+			<div class="form-group">
+				<label for="{$setup['name']}">{$setup['label']}</label>
+				<textarea placeholder="Enter {$setup['label']} here.." id="{$setup['name']}" name="{$setup['name']}" class="form-control">{$this->esc_html($this->get_value($setup))}</textarea>
+			</div>
+		EOT;
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Renders an input form element.
+	 *
+	 * This method generates an input form element with a label and placeholder.
+	 * It populates the input with the value of the 'name' parameter in the
+	 * current request parameters.
+	 *
+	 * @param string $type The type of the input element, e.g. text, number, email, etc.
+	 * @param array  $setup An associative array containing the setup parameters
+	 *                     for the input element, including 'name' and 'label'.
+	 *
+	 * @return string The HTML output for the input form element.
+	 */
+	public function input( $type, $setup ) {
+		ob_start();
+
+		echo <<<EOT
+			<div class="form-group">
+				<label for="{$setup['name']}">{$setup['label']}</label>
+				<input type="{$type}" placeholder="Enter {$setup['label']} here.." id="{$setup['name']}" name="{$setup['name']}" value="{$this->get_value($setup)}" class="form-control">
+			</div>
+		EOT;
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Get the value for the given form element.
+	 *
+	 * The value will be retrieved from the 'value' key in the $setup array if
+	 * it exists. Otherwise, it will be retrieved from the $_POST array with the
+	 * key of $setup['name']. If $_POST[$setup['name']] is not set, an empty
+	 * string will be returned.
+	 *
+	 * @param array $setup The form element setup array.
+	 *
+	 * @return string The value for the given form element.
+	 */
+	protected function get_value( $setup ) {
+		return $setup['value'] ?? ( $_POST[ $setup['name'] ] ?? '' );
+	}
+
+	/**
+	 * Decodes HTML entities and unescapes certain characters in a string.
+	 *
+	 * This method replaces escaped quotes with their unescaped equivalents
+	 * and decodes HTML entities in the given string.
+	 *
+	 * @param string $html The HTML string to be processed.
+	 *
+	 * @return string The processed string with HTML entities decoded and
+	 *                certain characters unescaped.
+	 */
+	protected function esc_html( $html = '' ) {
+		$find = array(
+			'\\"' => '"',
+			"\\'" => "'",
+		);
+
+		return html_entity_decode( str_replace( array_keys( $find ), array_values( $find ), (string) $html ) );
+	}
+}

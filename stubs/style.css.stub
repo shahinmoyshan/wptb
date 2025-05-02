@@ -1,0 +1,153 @@
+/*!
+Theme Name: {{THEME_NAME}}
+Theme URI: {{THEME_URI}}
+Author: {{AUTHOR_NAME}}
+Author URI: {{AUTHOR_URI}}
+Description: {{THEME_DESCRIPTION}}
+Version: 1.0.0
+Tested up to: 6.0
+Requires PHP: 8.0
+Text Domain: {{THEME_NAME__LOWERCASE}}
+Tags: {{THEME_TAGS}}
+*/
+
+/**
+ * WordPress Boilerplate Reset/Normalize CSS for WordPress themes
+ * 
+ * Box sizing rules
+ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove default margin and padding */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+dl,
+dd,
+ol,
+ul,
+figure,
+hr,
+fieldset,
+legend {
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove list styles on ul, ol elements */
+ul,
+ol {
+    list-style: none;
+}
+
+/* Set core body defaults */
+body {
+    min-height: 100vh;
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+}
+
+/* Make images easier to work with */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+/* Remove all animations and transitions for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* WordPress specific elements */
+.alignwide {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.alignfull {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+.wp-caption {
+    margin-bottom: 1.5em;
+}
+
+.wp-caption img[class*="wp-image-"] {
+    display: block;
+    margin: 0 auto;
+}
+
+.wp-caption-text {
+    text-align: center;
+    font-size: 0.875em;
+    margin-top: 0.5em;
+}
+
+/* Basic typography */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    color: #333;
+}
+
+/* Basic links */
+a {
+    color: #0066cc;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #004080;
+    text-decoration: underline;
+}
+
+/* Basic form elements */
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+    cursor: pointer;
+}
+
+/* Basic table styles */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1.5em;
+}
+
+td,
+th {
+    padding: 0.5em;
+    border: 1px solid #ddd;
+}

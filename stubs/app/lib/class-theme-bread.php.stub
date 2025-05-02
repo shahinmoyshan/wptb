@@ -1,0 +1,665 @@
+<?php
+/**
+ * The file that helps create a bread table.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/lib
+ */
+
+if ( ! class_exists( 'WP_List_Table' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
+/**
+ * Class {{THEME_NAME}}_Bread
+ *
+ * This class defines all code necessary to create a bread table.
+ * It extends the WP_List_Table class and provides methods for rendering the bread table.
+ * It also handles the creation, editing, and deletion of bread items.
+ * It also provides filters for modifying bread data and actions for executing custom operations.
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/lib
+ * @author     {{AUTHOR_NAME}} <{{AUTHOR_URI}}>
+ */
+class {{THEME_NAME}}_Bread extends WP_List_Table {
+
+	/**
+	 * Table setup configuration.
+	 *
+	 * @var array
+	 */
+	private $table_setup;
+
+	/**
+	 * Filters for modifying bread data.
+	 *
+	 * @var array
+	 */
+	private $bread_filters;
+
+	/**
+	 * Actions for executing custom operations.
+	 *
+	 * @var array
+	 */
+	private $bread_actions;
+
+	/**
+	 * Constructor for the {{THEME_NAME}}_Bread class.
+	 *
+	 * Initializes the table setup configuration based on the provided setup array.
+	 * If edit fields are not specified, it defaults to create fields.
+	 *
+	 * @param array $setup The configuration array for setting up the table.
+	 */
+	public function __construct( $setup ) {
+		parent::__construct();
+
+		if ( ! isset( $setup['bread']['edit']['fields'] ) && isset( $setup['bread']['create']['fields'] ) ) {
+			$setup['bread']['edit']['fields'] = $setup['bread']['create']['fields'];
+		}
+
+		$this->table_setup = $setup;
+	}
+
+	/**
+	 * Setup a new instance of {{THEME_NAME}}_Bread.
+	 *
+	 * @param array $setup The configuration array for setting up the table.
+	 * @return self
+	 */
+	public static function setup( $setup ): self {
+		return new self( $setup );
+	}
+
+	/**
+	 * Assign filters to be applied on the bread data.
+	 *
+	 * @param array $bread_filters An array of filters to modify the bread data.
+	 * @return self
+	 */
+	public function filters( $bread_filters ): self {
+		$this->bread_filters = $bread_filters;
+
+		return $this;
+	}
+
+	/**
+	 * Assign actions to be applied on the bread data.
+	 *
+	 * @param array $bread_actions An array of actions to modify the bread data.
+	 * @return self
+	 */
+	public function actions( $bread_actions ): self {
+		$this->bread_actions = $bread_actions;
+
+		return $this;
+	}
+
+	/**
+	 * Prepare the items for display.
+	 *
+	 * This method is called by WordPress to gather the data for the table.
+	 *
+	 * @since 1.0.0
+	 */
+	public function prepare_items() {
+		$orderby     = isset( $_GET['orderby'] ) ? trim( $_GET['orderby'] ) : $this->get_primary_key();
+		$order       = isset( $_GET['order'] ) ? trim( $_GET['order'] ) : 'desc';
+		$search_term = isset( $_POST['s'] ) ? trim( $_POST['s'] ) : '';
+
+		$this->items = $this->wp_list_table_data( $orderby, $order, $search_term );
+		$this->items = $this->apply_filters( 'bread_items', $this->items );
+
+		$this->set_pagination_args(
+			array(
+				'total_items' => $this->table_setup['total_record'],
+				'per_page'    => $this->table_setup['limit'],
+			)
+		);
+
+		$this->_column_headers = array(
+			$this->get_columns(),
+			$this->get_hidden_columns(),
+			$this->get_sortable_columns(),
+		);
+	}
+
+	/**
+	 * Applies filters to the data.
+	 *
+	 * This method is used to apply filters that were assigned by the filters()
+	 * method.
+	 *
+	 * @param string $key The key of the filter to apply.
+	 * @param mixed  ...$args The data to be filtered.
+	 *
+	 * @return mixed The filtered data.
+	 */
+	protected function apply_filters( $key, ...$args ) {
+		if ( isset( $this->bread_filters[ $key ] ) && is_callable( $this->bread_filters[ $key ] ) ) {
+			$data = call_user_func_array( $this->bread_filters[ $key ], $args );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Executes an action on the bread data.
+	 *
+	 * This method is used to invoke an action that modifies the bread data,
+	 * based on the actions assigned by the actions() method.
+	 *
+	 * @param string $key The key of the action to execute.
+	 * @param mixed  ...$args The arguments to be passed to the action.
+	 */
+	protected function do_action( $key, ...$args ) {
+		if ( isset( $this->bread_actions[ $key ] ) && is_callable( $this->bread_actions[ $key ] ) ) {
+			call_user_func_array( $this->bread_actions[ $key ], $args );
+		}
+	}
+
+	/**
+	 * Gets the columns that should be hidden.
+	 *
+	 * @return array An array of column keys that should be hidden.
+	 */
+	public function get_hidden_columns() {
+		return $this->table_setup['hidden_column'] ?? array();
+	}
+
+	/**
+	 * Gets the columns that should be sortable.
+	 *
+	 * @return array An associative array with column keys as keys and
+	 *               boolean values indicating whether the column is sortable.
+	 */
+	public function get_sortable_columns() {
+		return $this->table_setup['sortable_column'] ?? array();
+	}
+
+	/**
+	 * Retrieve all columns for the table.
+	 *
+	 * This method constructs an associative array of columns for the table, including
+	 * checkbox columns for bulk actions and additional columns specified in the table setup.
+	 * Optionally includes an actions column if configured.
+	 *
+	 * @return array An associative array of table columns.
+	 */
+	public function get_columns() {
+		$columns = array( 'cb' => '<input type="checkbox" />' );
+		foreach ( $this->table_setup['columns'] as $key => $val ) {
+			$columns[ $key ] = $val;
+		}
+
+		if ( isset( $this->table_setup['actions_column'] ) && $this->table_setup['actions_column'] ) {
+			$columns[ $this->table_setup['actions_column'] ] = ucwords( str_replace( '_', ' ', $this->table_setup['actions_column'] ) );
+		}
+
+		return $columns;
+	}
+
+	/**
+	 * Retrieve data for the WP_List_Table.
+	 *
+	 * This method constructs the query arguments for the table query, including
+	 * search, sorting, and pagination.
+	 *
+	 * @param string $order_by The column to sort by.
+	 * @param string $order    The sort order (ASC, DESC).
+	 * @param string $search_term The search term.
+	 *
+	 * @return array The query results.
+	 */
+	public function wp_list_table_data( $order_by = '', $order = '', $search_term = '' ) {
+		$args = array();
+
+		if ( ! empty( $search_term ) ) {
+			if ( 'id' === $this->table_setup['search_field'] ) {
+				$args['where'] = sprintf( '%s = %s', $this->table_setup['search_field'], $search_term );
+			} elseif ( is_array( $this->table_setup['search_field'] ) ) {
+				// search for all field in a grouped clause.
+				$args['where'] = '(' . implode(
+					' OR ',
+					array_map(
+						function ( $field ) use ( $search_term ) {
+							return sprintf( "%s LIKE '%s'", $field, "%{$search_term}%" );
+						},
+						$this->table_setup['search_field']
+					)
+				) . ')';
+			} else {
+				$args['where'] = sprintf( "%s LIKE '%s'", $this->table_setup['search_field'], "%{$search_term}%" );
+			}
+		}
+
+		if ( isset( $this->table_setup['where'] ) ) {
+			if ( isset( $args['where'] ) ) {
+				$args['where'] .= ' AND ' . $this->table_setup['where'];
+			} else {
+				$args['where'] = $this->table_setup['where'];
+			}
+		}
+
+		if ( isset( $this->table_setup['extra_cond'] ) ) {
+			$args['extra_cond'] = $this->table_setup['extra_cond'];
+		}
+
+		if ( ! isset( $this->table_setup['total_record'] ) ) {
+			$this->table_setup['total_record'] = {{THEME_NAME}}_Query::total( $this->table_setup['table'], $args );
+		}
+
+		if ( ! empty( $order_by ) && ! empty( $order ) ) {
+			$args['order']    = $order;
+			$args['order_by'] = $order_by;
+		}
+
+		$args['offset'] = ( $this->get_pagenum() - 1 ) * $this->table_setup['limit'];
+		$args['limit']  = $this->table_setup['limit'];
+		$args['select'] = array_keys( $this->table_setup['columns'] );
+
+		$args = $this->apply_filters( 'bread_read_args', $args );
+
+		$args['select'] = join( ',', $args['select'] );
+
+		return {{THEME_NAME}}_Query::results( $this->table_setup['table'], $args );
+	}
+
+	/**
+	 * Retrieves the list of bulk actions available for the table.
+	 *
+	 * @return array An associative array of bulk actions, where each key is the
+	 *     action name and each value is the human-readable label for that action.
+	 */
+	public function get_bulk_actions() {
+		$actions = array(
+			'delete' => 'Delete',
+		);
+
+		return $actions;
+	}
+
+	/**
+	 * Retrieves the primary key column name for the table.
+	 *
+	 * @return string The column name.
+	 */
+	public function get_primary_key() {
+		return $this->table_setup['primary_key'] ?? 'id';
+	}
+
+	/**
+	 * Output a checkbox for each item in the table.
+	 *
+	 * @param array $item The current item.
+	 *
+	 * @return string The HTML for the checkbox.
+	 */
+	public function column_cb( $item ) {
+		return sprintf( '<input type="checkbox" name="cb_field[]" value="%s" />', $item[ $this->get_primary_key() ] );
+	}
+
+	/**
+	 * This function is a callback for WordPress's WP_List_Table, it is called
+	 * for each column of each item in the table. It's purpose is to provide the
+	 * content of the column.
+	 *
+	 * @param array  $item The current item.
+	 * @param string $column_name The name of the column.
+	 *
+	 * @return string The content of the column.
+	 */
+	public function column_default( $item, $column_name ) {
+		$filter = $this->bread_filters['columns'][ $column_name ] ?? null;
+
+		if ( null !== $filter && is_callable( $filter ) ) {
+			return call_user_func( $filter, $item );
+		}
+
+		if ( isset( $this->table_setup['actions_column'] ) && $this->table_setup['actions_column'] && $column_name === $this->table_setup['actions_column'] ) {
+			$actions = array();
+
+			if ( $this->can_view() ) {
+				$actions[] = '<a href="' . add_query_arg(
+					array(
+						'action'                 => 'view',
+						$this->get_primary_key() => $item[ $this->get_primary_key() ],
+					)
+				) . '">View</a>';
+			}
+
+			if ( $this->can_edit() ) {
+				$actions[] = '<a href="' . add_query_arg(
+					array(
+						'action'                 => 'edit',
+						$this->get_primary_key() => $item[ $this->get_primary_key() ],
+					)
+				) . '">Edit</a>';
+			}
+
+			if ( $this->can_delete() ) {
+				$actions[] = '<a href="' . add_query_arg(
+					array(
+						'action'                 => 'delete',
+						$this->get_primary_key() => $item[ $this->get_primary_key() ],
+					)
+				) . '" style="color:#b32d2e" onclick="return confirm(\'are you sure to delete this ?\')">Delete</a>';
+			}
+
+			return join( ' | ', $actions );
+		}
+
+		return $item[ $column_name ] ?? 'no value';
+	}
+
+	/**
+	 * Generates the HTML for the title column, including action links.
+	 *
+	 * This method constructs the display of the title column for a row in the
+	 * table, appending action links (View, Edit, Delete) based on the user's
+	 * permissions. The action links are generated with appropriate URLs and
+	 * confirmation dialogs where necessary.
+	 *
+	 * @param array $item The current item data for the row.
+	 * @return string The HTML content for the title column, including action links.
+	 */
+	public function column_title( $item ) {
+		$action = array();
+
+		if ( $this->can_view() ) {
+			$action['view'] = sprintf(
+				'<a href="%s">View</a>',
+				add_query_arg(
+					array(
+						'action'                 => 'view',
+						$this->get_primary_key() => $item[ $this->get_primary_key() ],
+					)
+				)
+			);
+		}
+
+		if ( $this->can_edit() ) {
+			$action['edit'] = sprintf(
+				'<a href="%s">Edit</a>',
+				add_query_arg(
+					array(
+						'action'                 => 'edit',
+						$this->get_primary_key() => $item[ $this->get_primary_key() ],
+					)
+				)
+			);
+		}
+
+		if ( $this->can_delete() ) {
+			$action['delete'] = sprintf(
+				'<a href="%s" onclick="return confirm(\'are you sure to dele this ?\')">Delete</a>',
+				add_query_arg(
+					array(
+						'action'                 => 'delete',
+						$this->get_primary_key() => $item[ $this->get_primary_key() ],
+					)
+				)
+			);
+		}
+
+		return sprintf( '%1$s %2$s', $item['title'], $this->row_actions( $action ) );
+	}
+
+	/**
+	 * Determines whether the current user has the capability to create a new item in
+	 * the table.
+	 *
+	 * @return bool True if the user can create, false otherwise.
+	 */
+	public function can_create() {
+		return isset( $this->table_setup['bread']['create'] );
+	}
+
+	/**
+	 * Determines whether the current user has the capability to edit an existing item in
+	 * the table.
+	 *
+	 * @return bool True if the user can edit, false otherwise.
+	 */
+	public function can_edit() {
+		return isset( $this->table_setup['bread']['edit'] );
+	}
+
+	/**
+	 * Determines whether the current user has the capability to view an existing item in
+	 * the table.
+	 *
+	 * @return bool True if the user can view, false otherwise.
+	 */
+	public function can_view() {
+		return isset( $this->table_setup['bread']['view'] );
+	}
+
+	/**
+	 * Determines whether the current user has the capability to delete an existing item in
+	 * the table. This method always returns true, as delete is always allowed.
+	 *
+	 * @return bool True if the user can delete, false otherwise.
+	 */
+	public function can_delete() {
+		return true;
+	}
+
+	/**
+	 * Renders the table interface for the WP_List_Table.
+	 *
+	 * This method prepares the items, displays a search box, and outputs
+	 * the table content within a form. The table content is captured in
+	 * an output buffer, and it is then inserted into the specified view
+	 * template, replacing the placeholder '[wp-table]' with the actual
+	 * table content.
+	 */
+	public function show_table() {
+
+		$this->prepare_items();
+
+		ob_start();
+		echo "<form method='post'>";
+		$this->search_box( 'Search', '' );
+		echo '</form>';
+
+		$this->display();
+
+		$table_content = ob_get_contents();
+		ob_clean();
+
+		$view = $this->get_bread_view( 'table' );
+
+		echo str_replace( array( '[wp-table]' ), array( $table_content ), $view );
+
+		unset( $table_content, $view );
+	}
+
+	/**
+	 * Retrieves the rendered view for a given action.
+	 *
+	 * @param string $view The view to render, e.g. 'table', 'form', 'edit'.
+	 *
+	 * @return string The rendered view.
+	 */
+	public function get_bread_view( $view ) {
+		$data  = $this->table_setup['bread'][ $view ] ?? array();
+		$data  = array_merge( $data, $this->table_setup['compact'] ?? array() );
+		$data  = $this->apply_filters( 'bread_render_' . $view . '_data', $data );
+		$table = $this;
+
+		foreach ( $data as $k => $v ) {
+			$$k = $v;
+		}
+
+		unset( $data );
+
+		$root_path = $this->table_setup['bread']['template'] ?? get_template_directory() . '/app/admin/partials/bread/';
+
+		if ( file_exists( $root_path . $this->table_setup['table'] . '/' . $view . '.php' ) ) {
+			$filepath = $root_path . $this->table_setup['table'] . '/' . $view . '.php';
+		} else {
+			$filepath = $root_path . $view . '.php';
+		}
+
+		ob_start();
+		include $filepath;
+		return ob_get_clean();
+	}
+
+	/**
+	 * Clears the input fields after successful submission of a form, except for the ones specified in the clear_except option.
+	 *
+	 * @param string $name The name of the form to clear the input fields for.
+	 */
+	public function clear_input_fields( $name ) {
+		$clear_except = $this->table_setup['bread'][ $name ]['clear_except'] ?? array();
+
+		foreach ( $this->table_setup['bread'][ $name ]['fields'] as $field ) {
+			if ( in_array( $field['name'], $clear_except ) ) {
+				continue;
+			}
+
+			unset( $_POST[ $field['name'] ] );
+		}
+	}
+
+	/**
+	 * Handles the rendering of the table interface and the creation, editing,
+	 * deletion, and viewing of records in the table.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render() {
+		$error_message   = null;
+		$success_message = null;
+		$redirect_url    = null;
+		$action          = $this->table_setup['bread']['action'];
+		$table           = $this->table_setup['table'];
+
+		if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'new', 'edit' ) ) ) {
+
+			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
+
+				// nonce validation.
+				if ( ! isset( $_POST['{{THEME_NAME__LOWERCASE}}_bread_nonce'] ) || ! wp_verify_nonce( $_POST['{{THEME_NAME__LOWERCASE}}_bread_nonce'], '{{THEME_NAME__LOWERCASE}}_bread' ) ) {
+					$error_message = 'Invalid nonce';
+				}
+
+				$data = array();
+
+				foreach ( $this->table_setup['bread'][ isset( $_POST['update_id'] ) ? 'edit' : 'create' ]['fields'] as $field ) {
+
+					if ( isset( $field['ignore'] ) && $field['ignore'] ) {
+						continue;
+					}
+
+					if ( isset( $_POST[ $field['name'] ] ) && ! empty( $_POST[ $field['name'] ] ) ) {
+						$data[ $field['name'] ] = sanitize_text_field( wp_unslash( $_POST[ $field['name'] ] ) );
+					} elseif ( ! ( isset( $field['nullable'] ) && $field['nullable'] === true ) ) {
+						$error_message = 'Invalid input field: ' . $field['label'];
+						break;
+					}
+				}
+
+				$data = $this->apply_filters( 'bread_submit_data', array_filter( $data ) );
+
+				if ( $error_message === null ) {
+					if ( isset( $_POST['update_id'] ) ) {
+
+						$data = $this->apply_filters( 'bread_update_data', $data, $_POST['update_id'] );
+
+						if ( {{THEME_NAME}}_Query::update( $table, $data, array( $this->get_primary_key() => $_POST['update_id'] ) ) ) {
+
+							$this->do_action( 'bread_update', $_POST['update_id'], $data );
+
+							$success_message = sprintf( $action . ': #%s has been updated.', $_POST['update_id'] );
+
+							$this->clear_input_fields( 'edit' );
+						} else {
+							$error_message = 'failed to update ' . $action;
+						}
+					} else {
+						$data       = $this->apply_filters( 'bread_create_data', $data );
+						$created_id = {{THEME_NAME}}_Query::create( $table, $data );
+
+						if ( $created_id ) {
+
+							$this->do_action( 'bread_create', $created_id, $data );
+
+							$success_message = $action . ' has been created.';
+
+							$this->clear_input_fields( 'create' );
+						} else {
+							$error_message = 'failed to store ' . $action;
+						}
+					}
+				}
+			}
+
+			$view_name = 'create';
+			$edit_data = null;
+
+			if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET[ $this->get_primary_key() ] ) ) {
+
+				$edit_data = {{THEME_NAME}}_Query::result( $table, array( 'where' => $this->get_primary_key() . ' = ' . $_GET[ $this->get_primary_key() ] ) );
+				$edit_data = $this->apply_filters( 'bread_edit_data', $edit_data );
+
+				if ( null === $edit_data ) {
+					$error_message = $action . ' does not exists with #' . $_GET[ $this->get_primary_key() ];
+				} else {
+					foreach ( $edit_data as $key => $value ) {
+						$_POST[ $key ] = $value;
+					}
+				}
+
+				$view_name = 'edit';
+			}
+
+			$this->table_setup['compact'] = array(
+				'edit_data'       => $edit_data,
+				'error_message'   => $error_message,
+				'success_message' => $success_message,
+				'redirect_url'    => $redirect_url,
+			);
+
+			echo $this->get_bread_view( $view_name );
+		} else {
+			if ( isset( $_GET['action'] ) && 'delete' === $_GET['action'] && isset( $_GET[ $this->get_primary_key() ] ) ) {
+				$ids = explode( ',', $_GET[ $this->get_primary_key() ] );
+				if ( {{THEME_NAME}}_Query::query( 'DELETE FROM ' . {{THEME_NAME}}_Query::table( $table ) . " WHERE {$this->get_primary_key()} IN(" . join( ',', $ids ) . ')' ) ) {
+					$this->do_action( 'bread_delete', $ids );
+
+					$success_message = sprintf( '%s has been deleted.', $action );
+					$redirect_url    = remove_query_arg( array( 'action', $this->get_primary_key() ) );
+				} else {
+					$error_message = 'Failed to delete ' . $action;
+				}
+			}
+
+			if ( isset( $_GET['action'] ) && 'view' === $_GET['action'] && isset( $_GET[ $this->get_primary_key() ] ) ) {
+				$record = {{THEME_NAME}}_Query::result( $table, array( 'where' => $this->get_primary_key() . ' = ' . $_GET[ $this->get_primary_key() ] ) );
+				$record = $this->apply_filters( 'bread_view', $record );
+
+				$this->table_setup['compact'] = array(
+					'record' => $record,
+				);
+
+				echo $this->get_bread_view( 'view' );
+			} else {
+				$this->table_setup['compact'] = array(
+					'error_message'   => $error_message,
+					'success_message' => $success_message,
+					'redirect_url'    => $redirect_url,
+				);
+
+				$this->show_table();
+			}
+		}
+	}
+}

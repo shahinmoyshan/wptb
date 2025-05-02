@@ -1,0 +1,84 @@
+<?php
+/**
+ * Bootstrap the {{THEME_NAME}} Theme.
+ *
+ * This file is responsible for loading the theme's functionality.
+ *
+ * @package {{THEME_NAME}}
+ */
+
+if ( ! function_exists( 'activate_{{THEME_NAME__LOWERCASE}}' ) ) {
+	/**
+	 * The code that runs during tehem activation.
+	 * This action is documented in /app/bootstrap/class-{{THEME_NAME__LOWERCASE}}-activator.php
+	 */
+	function activate_{{THEME_NAME__LOWERCASE}}() {
+		include_once {{THEME_NAME__UPPERCASE}}_THEME_DIR . '/app/bootstrap/class-{{THEME_NAME__LOWERCASE}}-activator.php';
+
+		{{THEME_NAME}}_Activator::activate();
+	}
+}
+
+if ( ! function_exists( 'deactivate_{{THEME_NAME__LOWERCASE}}' ) ) {
+	/**
+	 * The code that runs during tehem deactivation.
+	 * This action is documented in /app/bootstrap/class-{{THEME_NAME__LOWERCASE}}-deactivator.php
+	 */
+	function deactivate_{{THEME_NAME__LOWERCASE}}() {
+		include_once {{THEME_NAME__UPPERCASE}}_THEME_DIR . '/app/bootstrap/class-{{THEME_NAME__LOWERCASE}}-deactivator.php';
+
+		{{THEME_NAME}}_Deactivator::deactivate();
+	}
+}
+
+add_action( 'after_switch_theme', 'activate_{{THEME_NAME__LOWERCASE}}' );
+add_action( 'switch_theme', 'deactivate_{{THEME_NAME__LOWERCASE}}' );
+
+if ( ! function_exists( 'customize_{{THEME_NAME__LOWERCASE}}' ) ) {
+	/**
+	 * Registers {{THEME_NAME}}'s customizer settings and sections.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_Customize_Manager $wp_customize The Customizer object.
+	 */
+	function customize_{{THEME_NAME__LOWERCASE}}( $wp_customize ) {
+		include_once {{THEME_NAME__UPPERCASE}}_THEME_DIR . '/app/customize/class-{{THEME_NAME__LOWERCASE}}-customize.php';
+
+		{{THEME_NAME}}_Customize::customize( $wp_customize );
+	}
+}
+
+add_action( 'customize_register', 'customize_{{THEME_NAME__LOWERCASE}}' );
+
+if ( ! function_exists( '{{THEME_NAME__LOWERCASE}}_customize_preview_assets' ) ) {
+	/**
+	 * Binds JS handlers to make Theme Customizer preview reload changes asynchronously.
+	 */
+	function {{THEME_NAME__LOWERCASE}}_customize_preview_assets() {
+		include_once {{THEME_NAME__UPPERCASE}}_THEME_DIR . '/app/customize/class-{{THEME_NAME__LOWERCASE}}-customize.php';
+
+		{{THEME_NAME}}_Customize::preview_assets();
+	}
+}
+
+add_action( 'customize_preview_init', '{{THEME_NAME__LOWERCASE}}_customize_preview_assets' );
+
+if ( ! function_exists( 'run_{{THEME_NAME__LOWERCASE}}' ) ) {
+	/**
+	 * Initializes and runs the {{THEME_NAME}} theme.
+	 *
+	 * This function creates an instance of the {{THEME_NAME}} class
+	 * and invokes its run method to execute the theme's functionality.
+	 *
+	 * @since 1.0.0
+	 */
+	function run_{{THEME_NAME__LOWERCASE}}() {
+		require_once {{THEME_NAME__UPPERCASE}}_THEME_DIR . '/app/bootstrap/class-{{THEME_NAME__LOWERCASE}}.php';
+
+		${{THEME_NAME__LOWERCASE}} = new {{THEME_NAME}}();
+		${{THEME_NAME__LOWERCASE}}->run();
+	}
+}
+
+run_{{THEME_NAME__LOWERCASE}}();

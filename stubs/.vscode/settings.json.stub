@@ -1,0 +1,14 @@
+{
+    "phpcs.enable": false,
+    "phpcs.lintOnSave": true,
+    "phpcs.standard": "WordPress",
+    "phpsab.standard": "WordPress",
+    "[php]": {
+        "editor.defaultFormatter": "valeryanm.vscode-phpsab",
+        "editor.formatOnSave": true
+    },
+    "php.stubs": [
+        "*",
+        "wordpress"
+    ]
+}

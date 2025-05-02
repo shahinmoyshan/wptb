@@ -1,0 +1,59 @@
+<?php
+/**
+ * The home template file
+ *
+ * @package {{THEME_NAME}}
+ */
+
+get_header(); ?>
+
+<main id="main-content" class="site-main">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8">
+				<div class="content-area">
+					<header class="page-header">
+						<h1 class="page-title"><?php echo get_theme_mod( 'home_title', 'Latest Articles' ); ?></h1>
+						<?php if ( $subtitle = get_theme_mod( 'home_subtitle' ) ) : ?>
+							<p class="page-subtitle"><?php echo esc_html( $subtitle ); ?></p>
+						<?php endif; ?>
+					</header>
+
+					<?php if ( have_posts() ) : ?>
+						<div class="posts-grid">
+							<?php
+							while ( have_posts() ) :
+								the_post();
+								?>
+								<?php get_template_part( 'template-parts/content', get_post_type() ); ?>
+							<?php endwhile; ?>
+						</div>
+
+						<div class="posts-navigation">
+							<?php
+							the_posts_pagination(
+								array(
+									'mid_size'  => 2,
+									'prev_text' => __( '&larr; Previous', '{{THEME_NAME__LOWERCASE}}' ),
+									'next_text' => __( 'Next &rarr;', '{{THEME_NAME__LOWERCASE}}' ),
+								)
+							);
+							?>
+						</div>
+
+					<?php else : ?>
+						<div class="no-posts-found">
+							<h3><?php esc_html_e( 'No Posts Found', '{{THEME_NAME__LOWERCASE}}' ); ?></h3>
+							<p><?php esc_html_e( 'It seems we can\'t find what you\'re looking for.', '{{THEME_NAME__LOWERCASE}}' ); ?></p>
+						</div>
+					<?php endif; ?>
+				</div><!-- .content-area -->
+			</div>
+			<div class="col-md-4">
+				<?php get_sidebar(); ?>
+			</div>
+		</div>
+	</div><!-- .container -->
+</main><!-- #main-content -->
+
+<?php get_footer(); ?>

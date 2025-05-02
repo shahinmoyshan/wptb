@@ -1,0 +1,51 @@
+<?php
+/**
+ * The footer for our theme
+ *
+ * @package {{THEME_NAME}}
+ */
+?>
+		</main><!-- #main-content -->
+
+		<footer id="site-footer" class="site-footer">
+			<div class="container">
+
+				<?php if ( is_active_sidebar( 'footer-widgets' ) ) : ?>
+					<div class="footer-widgets">
+						<?php dynamic_sidebar( 'footer-widgets' ); ?>
+					</div><!-- .footer-widgets -->
+				<?php endif; ?>
+
+				<div class="site-info">
+					<div class="copyright">
+						&copy; <?php echo date( 'Y' ); ?> 
+						<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+							<?php bloginfo( 'name' ); ?>
+						</a>
+					</div><!-- .copyright -->
+
+					<?php if ( has_nav_menu( 'footer' ) ) : ?>
+						<div class="footer-links">
+							<?php
+							wp_nav_menu(
+								array(
+									'theme_location' => 'footer',
+									'menu_id'        => 'footer-menu',
+									'depth'          => 1,
+									'fallback_cb'    => false,
+								)
+							);
+							?>
+						</div><!-- .footer-links -->
+					<?php endif ?>
+				</div><!-- .site-info -->
+
+				<button id="back-to-top" class="back-to-top" aria-label="<?php esc_attr_e( 'Back to top', '{{THEME_NAME__LOWERCASE}}' ); ?>">
+					↑
+				</button>
+			</div><!-- .container -->
+		</footer><!-- #site-footer -->
+
+		<?php wp_footer(); ?>
+	</body>
+</html>

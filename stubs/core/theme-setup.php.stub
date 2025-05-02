@@ -1,0 +1,108 @@
+<?php
+/**
+ * {{THEME_NAME}} Theme Setup Functions..
+ *
+ * @package {{THEME_NAME}}
+ */
+
+if ( ! function_exists( '{{THEME_NAME__LOWERCASE}}_setup' ) ) {
+	/**
+	 * Sets up theme defaults and registers support for various WordPress features.
+	 *
+	 * Note that this function is hooked into the after_setup_theme hook, which
+	 * runs before the init hook. The init hook is too late for some features, such
+	 * as indicating support for post thumbnails.
+	 */
+	function {{THEME_NAME__LOWERCASE}}_setup() {
+
+		/**
+		 * Make theme available for translation.
+		 * Translators: If you're translating this theme, you'll need to change the
+		 * text domain. You can do that here: https://www.potenzaglobalsolutions.com/{{THEME_NAME__LOWERCASE}}/
+		 * If you're building a theme based on {{THEME_NAME}}, use {{THEME_NAME__LOWERCASE}} as the text domain
+		 * when translating.
+		 */
+		load_theme_textdomain( '{{THEME_NAME__LOWERCASE}}', get_template_directory() . '/languages' );
+
+		// Add default posts and comments RSS feed links to head.
+		add_theme_support( 'automatic-feed-links' );
+
+		/*
+		* Let WordPress manage the document title.
+		* By adding theme support, we declare that this theme does not use a
+		* hard-coded <title> tag in the document head, and expect WordPress to
+		* provide it for us.
+		*/
+		add_theme_support( 'title-tag' );
+
+		/*
+		* Enable support for Post Thumbnails on posts and pages.
+		*
+		* @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
+		*/
+		add_theme_support( 'post-thumbnails' );
+
+		// This theme uses wp_nav_menu() in one location.
+		register_nav_menus(
+			array(
+				'primary' => esc_html__( 'Primary', '{{THEME_NAME__LOWERCASE}}' ),
+				'footer'  => esc_html__( 'Footer Menu', '{{THEME_NAME__LOWERCASE}}' ),
+			)
+		);
+
+		// Add theme support for selective refresh for widgets.
+		add_theme_support( 'customize-selective-refresh-widgets' );
+
+		/**
+		 * Add support for core custom logo.
+		 *
+		 * @link https://codex.wordpress.org/Theme_Logo
+		 */
+		add_theme_support(
+			'custom-logo',
+			array(
+				'height'      => 60,
+				'width'       => 200,
+				'flex-width'  => true,
+				'flex-height' => true,
+			)
+		);
+	}
+}
+
+add_action( 'after_setup_theme', '{{THEME_NAME__LOWERCASE}}_setup' );
+
+if ( ! function_exists( '{{THEME_NAME__LOWERCASE}}_widgets_init' ) ) {
+	/**
+	 * Registers the footer widget area.
+	 *
+	 * @since 1.0.0
+	 */
+	function {{THEME_NAME__LOWERCASE}}_widgets_init() {
+		register_sidebar(
+			array(
+				'name'          => esc_html__( 'Footer Widgets', '{{THEME_NAME__LOWERCASE}}' ),
+				'id'            => 'footer-widgets',
+				'description'   => esc_html__( 'Add widgets here to appear in your footer.', '{{THEME_NAME__LOWERCASE}}' ),
+				'before_widget' => '<section id="%1$s" class="widget %2$s">',
+				'after_widget'  => '</section>',
+				'before_title'  => '<h3 class="widget-title">',
+				'after_title'   => '</h3>',
+			)
+		);
+
+		register_sidebar(
+			array(
+				'name'          => esc_html__( 'Main Sidebar', '{{THEME_NAME__LOWERCASE}}' ),
+				'id'            => 'sidebar-1',
+				'description'   => esc_html__( 'Add widgets here to appear in your sidebar.', '{{THEME_NAME__LOWERCASE}}' ),
+				'before_widget' => '<section id="%1$s" class="widget %2$s">',
+				'after_widget'  => '</section>',
+				'before_title'  => '<h3 class="widget-title">',
+				'after_title'   => '</h3>',
+			)
+		);
+	}
+}
+
+add_action( 'widgets_init', '{{THEME_NAME__LOWERCASE}}_widgets_init' );

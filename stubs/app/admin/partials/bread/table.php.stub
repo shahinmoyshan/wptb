@@ -1,0 +1,60 @@
+<?php
+/**
+ * Provide a admin area view for the theme
+ *
+ * This file is used to markup the admin-facing aspects of the theme.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/admin/partials
+ */
+
+?>
+<div class="wrap">
+	<h1 class="wp-heading-inline"><?php echo esc_html( $title ); ?></h1>
+	<?php if ( $table->can_create() ) : ?>
+		<a href="<?php echo esc_html( add_query_arg( array( 'action' => 'new' ) ) ); ?>" class="page-title-action"><?php echo esc_html__( 'Add New', '{{THEME_NAME__LOWERCASE}}' ); ?></a>
+	<?php endif ?>
+	<p class="cps_mt-0 cps_mb-0"><?php echo esc_html( $description ); ?></p>
+
+	<?php if ( isset( $error_message ) && ! empty( $error_message ) ) : ?>
+		<div class="notice notice-error is-dismissible inline cps_m-0 cps_mb-3">
+			<p><?php echo esc_html( $error_message ); ?></p>
+		</div>
+	<?php endif ?>
+
+	<?php if ( isset( $success_message ) && ! empty( $success_message ) ) : ?>
+		<div class="notice notice-success is-dismissible inline cps_m-0 cps_mb-3">
+			<p><?php echo esc_html( $success_message ); ?></p>
+		</div>
+	<?php endif ?>
+
+	<div id="poststuff" class="cps_pt-0">
+
+		<form method="get" id="cb_bulk_action" style="display:none">
+			<input type="hidden" name="page" value="<?php echo esc_attr( $_GET['page'] ); ?>">
+			<input type="hidden" name="action">
+			<input type="hidden" name="<?php echo esc_attr( $table->get_primary_key() ); ?>" id="primary_key_input">
+		</form>
+
+		<div id="post-body" class="metabox-holder">
+			<div id="post-body-content">
+				<div class="meta-box-sortables ui-sortable">
+					[wp-table]
+				</div>
+			</div>
+		</div>
+		<br class="clear">
+	</div>
+	
+</div>
+
+<?php if ( isset( $redirect_url ) && ! empty( $redirect_url ) ) : ?>
+	<script>
+		setTimeout(function() {
+			window.location.href = '<?php echo esc_url( $redirect_url ); ?>';
+		}, 1000);
+	</script>
+<?php endif ?>

@@ -1,0 +1,33 @@
+<?php
+/**
+ * {{THEME_NAME}} functions and definitions
+ *
+ * @link https://developer.wordpress.org/themes/basics/theme-functions/
+ *
+ * @package {{THEME_NAME}}
+ */
+
+if ( ! defined( '{{THEME_NAME__UPPERCASE}}__VERSION' ) ) {
+	// Replace the version number of the theme on each release.
+	define( '{{THEME_NAME__UPPERCASE}}__VERSION', '1.0.0' );
+}
+
+if ( ! defined( '{{THEME_NAME__UPPERCASE}}_THEME_DIR' ) ) {
+	// Define the template root directory.
+	define( '{{THEME_NAME__UPPERCASE}}_THEME_DIR', WP_CONTENT_DIR . '/themes/{{THEME_NAME__LOWERCASE}}' );
+}
+
+/**
+ * Theme setup
+ */
+require get_template_directory() . '/core/{{THEME_NAME__LOWERCASE}}-setup.php';
+
+/**
+ * Helper functions
+ */
+require get_template_directory() . '/core/{{THEME_NAME__LOWERCASE}}-helpers.php';
+
+/**
+ * Bootstrap the theme
+ */
+require get_template_directory() . '/core/{{THEME_NAME__LOWERCASE}}-bootstrap.php';

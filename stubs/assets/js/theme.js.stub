@@ -1,0 +1,86 @@
+(function ($) {
+    'use strict';
+
+    /**
+     * All of the code for your public-facing JavaScript source
+     * should reside in this file.
+     *
+     * Note: It has been assumed you will write jQuery code here, so the
+     * $ function reference has been prepared for usage within the scope
+     * of this function.
+     *
+     * This enables you to define handlers, for when the DOM is ready:
+     *
+     * $(function() {
+     *
+     * });
+     *
+     * When the window is loaded:
+     *
+     * $( window ).load(function() {
+     *
+     * });
+     *
+     * ...and/or other possibilities.
+     *
+     * Ideally, it is not considered best practise to attach more than a
+     * single DOM-ready or window-load handler for a particular page.
+     * Although scripts in the WordPress core, Plugins and Themes may be
+     * practising this, we should strive to set a better example in our own work.
+     */
+
+    // Mobile menu toggle
+    $(document).ready(function () {
+        // Mobile menu toggle
+        const menuToggle = $('.menu-toggle');
+        const primaryMenu = $('#primary-menu');
+
+        if (menuToggle.length && primaryMenu.length) {
+            menuToggle.on('click', function () {
+                primaryMenu.toggleClass('active');
+                const currentAria = $(this).attr('aria-expanded');
+                $(this).attr(
+                    'aria-expanded',
+                    currentAria === 'false' ? 'true' : 'false'
+                );
+            });
+        }
+
+        // Close submenus when clicking elsewhere
+        $(document).on('click', function (e) {
+            if (!$(e.target).is('#primary-menu a')) {
+                $('#primary-menu ul').css('display', 'none');
+            }
+        });
+
+
+        const backToTop = $('#back-to-top');
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 300) {
+                backToTop.addClass('visible');
+            } else {
+                backToTop.removeClass('visible');
+            }
+        });
+
+        backToTop.on('click', function (e) {
+            e.preventDefault();
+            $('html, body').animate({ scrollTop: 0 }, '300');
+        });
+
+        // Smooth scrolling for footer links
+        $('.footer-links a[href*="#"]').on('click', function (e) {
+            e.preventDefault();
+
+            const target = $(this.hash);
+            if (target.length) {
+                $('html, body').animate({
+                    scrollTop: target.offset().top - 100
+                }, 300);
+            }
+        });
+
+    });
+
+})(jQuery);

@@ -1,0 +1,189 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.cps_mt-0 {
+    margin-top: 0px !important;
+}
+
+.cps_mb-0 {
+    margin-bottom: 0px !important;
+}
+
+.cps_m-0 {
+    margin: 0px !important;
+}
+
+.cps_mb-3 {
+    margin-bottom: 15px !important;
+}
+
+.cps_pt-0 {
+    padding-top: 0px !important;
+}
+
+.cps_pb-0 {
+    padding-bottom: 0px !important;
+}
+
+.cps_center {
+    text-align: center !important;
+}
+
+.cps_mt-3 {
+    margin-top: 15px !important;
+}
+
+.cps_mt-5 {
+    margin-top: 25px !important;
+}
+
+.cps_mx-2 {
+    margin-right: 4px !important;
+    margin-left: 4px !important;
+}
+
+.cps_form-middle {
+    max-width: 600px;
+    margin: auto;
+    margin-top: 50px;
+    background: #fff;
+    padding: 15px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.cps_tab-content {
+    background: #fff;
+    padding: 15px 20px;
+}
+
+.configurator-wrapper {
+    margin-top: 50px !important;
+    max-width: 800px;
+    margin: auto;
+    width: max-content;
+    min-width: 430px;
+}
+
+.cps_form-middle.cps_unbordared {
+    border: none;
+    background: inherit;
+}
+
+.cps_form-middle.cps_wide-lg {
+    max-width: 750px;
+}
+
+.cps_form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.cps_form .form-group input.form-control {
+    width: 100%;
+    max-width: 100%;
+    padding: 3px 10px;
+}
+
+.cps_form .form-group {
+    margin-bottom: 15px;
+}
+
+.cps_form button.button {
+    padding: 8px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.select2-container .select2-selection--single {
+    height: 40px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    height: 33px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 36px;
+}
+
+.select2-results__options {
+    margin: 3px 6px;
+}
+
+.form-group select {
+    width: 100%;
+    max-width: 100%;
+    height: 40px;
+    padding: 5px 15px;
+}
+
+#post-body-content .meta-box-sortables input {
+    vertical-align: inherit
+}
+
+.cps_tab a {
+    display: inline-block;
+    text-decoration: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.cps_tab a.pc-active,
+.cps_tab a:hover {
+    background: #2a72ae;
+    color: #fff;
+}
+
+.cps_tab {
+    background: #2c3338;
+    display: flex;
+}
+
+.cps_form-flex label {
+    display: inline-block !important;
+}
+
+.select-wp-img img {
+    width: 120px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    display: block;
+    margin-top: 15px;
+    cursor: pointer
+}
+
+.js_loading label,
+.js_loading select {
+    cursor: wait;
+}
+
+.js_loading {
+    opacity: .65;
+}
+
+.form-group.cps_form-flex {
+    display: flex;
+    align-items: center;
+}
+
+.form-group.cps_form-flex label {
+    margin-bottom: 4px;
+    margin-left: 4px;
+}
+
+.cps_form .form-group textarea {
+    width: 100%;
+}
+
+.cps_d-flex {
+    display: flex;
+}

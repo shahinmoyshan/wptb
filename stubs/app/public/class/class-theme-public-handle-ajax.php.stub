@@ -1,0 +1,33 @@
+<?php
+/**
+ * The public-facing functionality of the theme.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/public
+ */
+
+/**
+ * The public-facing functionality of the theme.
+ *
+ * Defines the theme name, version, and two examples hooks for how to
+ * enqueue the public-facing stylesheet and JavaScript.
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/public
+ * @author     {{AUTHOR_NAME}} <{{AUTHOR_URI}}>
+ */
+class {{THEME_NAME}}_Public_Handle_Ajax {
+
+	/**
+	 * Manage the theme from admin panel.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function handle() {
+
+		echo 'Hello World';
+	}
+}

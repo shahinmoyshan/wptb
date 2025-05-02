@@ -1,0 +1,75 @@
+<?php
+/**
+ * Provide a admin area view for the theme
+ *
+ * This file is used to markup the admin-facing aspects of the theme.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/admin/partials
+ */
+
+$form_builder = new {{THEME_NAME}}_Form();
+
+?>
+<div class="wrap">
+	<h1 class="wp-heading-inline"><?php echo esc_html( $title ); ?></h1>
+	<a href="<?php echo esc_html( add_query_arg( array( 'action' => 'table' ) ) ); ?>" class="page-title-action"><?php echo esc_html__( 'Data List' ); ?></a>
+	<p class="cps_mt-0 cps_mb-0"><?php echo esc_html( $description ); ?></p>
+	<div id="poststuff" class="cps_pt-0">
+		<div id="post-body" class="metabox-holder">
+			<div id="post-body-content">
+
+				<div class="cps_form-middle cps_form">
+
+					<form method="post">
+
+						<?php wp_nonce_field( '{{THEME_NAME__LOWERCASE}}_bread', '{{THEME_NAME__LOWERCASE}}_bread_nonce', false ); ?>
+
+						<?php if ( isset( $error_message ) && ! empty( $error_message ) ) : ?>
+							<div class="notice notice-error is-dismissible inline cps_m-0 cps_mb-3">
+								<p><?php echo esc_html( $error_message ); ?></p>
+							</div>
+						<?php endif ?>
+
+						<?php if ( isset( $success_message ) && ! empty( $success_message ) ) : ?>
+							<div class="notice notice-success is-dismissible inline cps_m-0 cps_mb-3">
+								<p><?php echo esc_html( $success_message ); ?></p>
+							</div>
+						<?php endif ?>
+
+						<?php
+						foreach ( $fields as $field ) {
+							if ( isset( $edit_data ) ) {
+								$field['edit_data'] = $edit_data;
+							}
+
+							echo $form_builder->render( $field['type'], $field );
+						}
+						?>
+
+						<?php if ( isset( $edit_data[ $table->get_primary_key() ] ) ) : ?>
+							<input type="hidden" name="update_id" value="<?php echo esc_attr( $edit_data[ $table->get_primary_key() ] ); ?>">
+						<?php endif ?>
+
+						<div class="cps_center cps_mt-5">
+							<button type="submit" class="button button-primary"><?php echo isset( $edit_data[ $table->get_primary_key() ] ) ? esc_html__( 'Update', '{{THEME_NAME__LOWERCASE}}' ) : esc_html__( 'Create', '{{THEME_NAME__LOWERCASE}}' ); ?></button>
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</div>
+		<br class="clear">
+	</div>
+</div>
+
+<?php if ( isset( $redirect_url ) && ! empty( $redirect_url ) ) : ?>
+	<script>
+		setTimeout(function() {
+			window.location.href = '<?php echo esc_url( $redirect_url ); ?>';
+		}, 1000);
+	</script>
+<?php endif ?>

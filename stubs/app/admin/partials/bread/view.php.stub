@@ -1,0 +1,53 @@
+<?php
+/**
+ * Provide a admin area view for the theme
+ *
+ * This file is used to markup the admin-facing aspects of the theme.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/admin/partials
+ */
+
+?>
+<div class="wrap">
+	<h1 class="wp-heading-inline"><?php echo esc_html( $title ); ?></h1>
+	<a href="<?php echo esc_html( add_query_arg( array( 'action' => 'table' ) ) ); ?>" class="page-title-action"><?php echo esc_html__( 'Data List', '{{THEME_NAME__LOWERCASE}}' ); ?></a>
+	<p class="cps_mt-0 cps_mb-0"><?php echo esc_html( $description ); ?></p>
+	<div id="poststuff" class="cps_pt-0">
+		<div id="post-body" class="metabox-holder">
+			<div id="post-body-content">
+
+				<div class="meta-box-sortables ui-sortable cps_form-middle cps_unbordared cps_wide-lg">
+
+					<table class="wp-list-table widefat fixed striped ">
+						<?php if ( isset( $record ) && ! empty( $record ) ) : ?>
+							<?php foreach ( $record as $key => $value ) : ?>
+								<tr>
+									<th class="bread-view-th"><?php echo esc_html( $table->table_setup['columns'][ $key ] ?? ( ucwords( str_replace( '_', ' ', $key ) ) ) ); ?></th>
+									<td class="bread-view-td"><?php echo wp_kses( $value ?? '<small style="opacity:0.65">Empty</small>', true ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						<?php else : ?>
+							<tr>
+								<td colspan="2"><?php esc_html__( 'Record not found', '{{THEME_NAME__LOWERCASE}}' ); ?></td>
+							</tr>
+						<?php endif; ?>
+					</table>
+
+				</div>
+			</div>
+		</div>
+		<br class="clear">
+	</div>
+</div>
+
+<?php if ( isset( $redirect_url ) && ! empty( $redirect_url ) ) : ?>
+	<script>
+		setTimeout(function() {
+			window.location.href = '<?php echo esc_url( $redirect_url ); ?>';
+		}, 1000);
+	</script>
+<?php endif ?>

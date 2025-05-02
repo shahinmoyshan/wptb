@@ -1,0 +1,130 @@
+<?php
+/**
+ * The theme customizer functionality.
+ *
+ * @link  https://moyshan.netlify.app
+ * @since 1.0.0
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/customize
+ */
+
+/**
+ * Class {{THEME_NAME}}_Customize
+ *
+ * This class defines all code necessary to run during the theme's customizer.
+ *
+ * @package    {{THEME_NAME}}
+ * @subpackage {{THEME_NAME}}/app/customize
+ * @author     {{AUTHOR_NAME}} <{{AUTHOR_URI}}>
+ */
+class {{THEME_NAME}}_Customize {
+
+	/**
+	 * Add settings and controls for the theme customizer.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_Customize_Manager $wp_customize The customizer manager.
+	 */
+	public static function customize( $wp_customize ) {
+
+		// Home Page Section
+		$wp_customize->add_section(
+			'home_page_settings',
+			array(
+				'title'    => __( 'Home Page Settings', '{{THEME_NAME__LOWERCASE}}' ),
+				'priority' => 30,
+			)
+		);
+
+		// Home Title
+		$wp_customize->add_setting(
+			'home_title',
+			array(
+				'default'           => 'Latest Articles',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'home_title',
+			array(
+				'label'   => __( 'Home Page Title', '{{THEME_NAME__LOWERCASE}}' ),
+				'section' => 'home_page_settings',
+				'type'    => 'text',
+			)
+		);
+
+		// Home Subtitle
+		$wp_customize->add_setting(
+			'home_subtitle',
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'home_subtitle',
+			array(
+				'label'   => __( 'Home Page Subtitle', '{{THEME_NAME__LOWERCASE}}' ),
+				'section' => 'home_page_settings',
+				'type'    => 'text',
+			)
+		);
+
+		// Read More Text
+		$wp_customize->add_setting(
+			'read_more_text',
+			array(
+				'default'           => 'Continue Reading',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'read_more_text',
+			array(
+				'label'   => __( 'Read More Button Text', '{{THEME_NAME__LOWERCASE}}' ),
+				'section' => 'home_page_settings',
+				'type'    => 'text',
+			)
+		);
+
+		// Partial refresh for live preview
+		if ( isset( $wp_customize->selective_refresh ) ) {
+			$wp_customize->selective_refresh->add_partial(
+				'home_title',
+				array(
+					'selector'        => '.page-title',
+					'render_callback' => function () {
+						return get_theme_mod( 'home_title', 'Latest Articles' );
+					},
+				)
+			);
+
+			$wp_customize->selective_refresh->add_partial(
+				'home_subtitle',
+				array(
+					'selector'        => '.page-subtitle',
+					'render_callback' => function () {
+						return get_theme_mod( 'home_subtitle', '' );
+					},
+				)
+			);
+		}
+	}
+
+	/**
+	 * Binds JS handlers to make Theme Customizer preview reload changes asynchronously.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function preview_assets() {
+		wp_enqueue_script( '{{THEME_NAME__LOWERCASE}}-customizer', get_template_directory_uri() . '/app/customize/js/{{THEME_NAME__LOWERCASE}}-customizer.js', array( 'customize-preview' ), {{THEME_NAME__UPPERCASE}}__VERSION, true );
+	}
+}
