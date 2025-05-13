@@ -20,14 +20,14 @@ if ( ! defined( '{{THEME_NAME__UPPERCASE}}_THEME_DIR' ) ) {
 /**
  * Theme setup
  */
-require get_template_directory() . '/core/{{THEME_NAME__LOWERCASE}}-setup.php';
+require get_template_directory() . '/inc/{{THEME_NAME__LOWERCASE}}-setup.php';
 
 /**
  * Helper functions
  */
-require get_template_directory() . '/core/{{THEME_NAME__LOWERCASE}}-helpers.php';
+require get_template_directory() . '/inc/{{THEME_NAME__LOWERCASE}}-helpers.php';
 
 /**
  * Bootstrap the theme
  */
-require get_template_directory() . '/core/{{THEME_NAME__LOWERCASE}}-bootstrap.php';
+require get_template_directory() . '/inc/{{THEME_NAME__LOWERCASE}}-bootstrap.php';
